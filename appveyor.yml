@@ -14,7 +14,10 @@ environment:
   matrix:
 
     # Python 2.7.10 is the latest version and is not pre-installed.
-
+    - PYTHON: "C:\\Python27.11"
+      PYTHON_VERSION: "2.7.11"
+      PYTHON_ARCH: "32"
+      
     - PYTHON: "C:\\Python27.11-x64"
       PYTHON_VERSION: "2.7.11"
       PYTHON_ARCH: "64"
