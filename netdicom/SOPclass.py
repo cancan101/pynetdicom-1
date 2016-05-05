@@ -602,11 +602,9 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
             ans, id = self.DIMSE.Receive(Wait=False)
             if not ans:
                 if kill_time is not None and time.time() - start > kill_time:
-                    logger.debug("breaking for time")
-                    if self.DIMSE.DUL is not None:
-                        logger.debug("idle_timer_expired: %s", self.DIMSE.DUL.idle_timer_expired())
-                        logger.debug("kill: %s", self.DIMSE.DUL.kill)
-                    return
+                    msg = "Timed out waiting for DIMSE.Receive"
+                    logger.error(msg)
+                    raise Exception(msg)
                 else:
                     continue
             else:
@@ -620,7 +618,6 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
             except:
                 status = None
             if status != 'Pending':
-                logger.debug("breaking for status")
                 break
             yield status, d
         yield status, d
