@@ -160,20 +160,20 @@ class ACSEServiceProvider(object):
 
 #    def Receive(self, Wait):
 #        return self.DUL.ReceiveACSE(Wait)
-    def Release(self, Reason):
+    def Release(self, Reason, Timeout=None):
         """Requests the release of the associations and waits for
         confirmation"""
         rel = A_RELEASE_ServiceParameters()
         rel.Reason = Reason
         self.DUL.Send(rel)
-        rsp = self.DUL.Receive(Wait=True)
+        rsp = self.DUL.Receive(Wait=True, Timeout=Timeout)
         return rsp
         # self.DUL.Kill()
 
     def Abort(self):
         """Signifies the abortion of the association."""
         ab = A_ABORT_ServiceParameters()
-        self.DUL.Send(rel)
+        self.DUL.Send(ab)
         time.sleep(0.5)
         # self.DUL.Kill()
 
