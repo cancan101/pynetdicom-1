@@ -581,7 +581,7 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
         xrange(0xFF01, 0xFF01 + 1)
     )
 
-    def SCU(self, ds, msgid):
+    def SCU(self, ds, msgid, kill_time=None):
         # build C-FIND primitive
         cfind = C_FIND_ServiceParameters()
         cfind.MessageID = msgid
@@ -593,6 +593,7 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
 
         # send c-find request
         self.DIMSE.Send(cfind, self.pcid, self.maxpdulength)
+        start = time.time()
         while 1:
             time.sleep(0.001)
             # wait for c-find responses
@@ -608,6 +609,9 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
                 status = None
             if status != 'Pending':
                 break
+            if kill_time is not None:
+                if time.time() - start > kill_time:
+                    break
             yield status, d
         yield status, d
 
