@@ -592,9 +592,7 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
                                           self.transfersyntax.is_little_endian)
 
         # send c-find request
-        logger.debug("DIMSE.Send:start")
         self.DIMSE.Send(cfind, self.pcid, self.maxpdulength)
-        logger.debug("DIMSE.Send:done")
         start = time.time()
         while 1:
             time.sleep(0.001)
