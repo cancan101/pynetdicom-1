@@ -603,6 +603,9 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
             if not ans:
                 if kill_time is not None and time.time() - start > kill_time:
                     logger.debug("breaking for time")
+                    if self.DIMSE.DUL is not None:
+                        logger.debug("idle_timer_expired: %s", self.DIMSE.DUL.idle_timer_expired())
+                        logger.debug("kill: %s", self.DIMSE.DUL.kill)
                     break
                 else:
                     continue
