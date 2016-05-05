@@ -592,7 +592,9 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
                                           self.transfersyntax.is_little_endian)
 
         # send c-find request
+        logger.debug("DIMSE.Send:start")
         self.DIMSE.Send(cfind, self.pcid, self.maxpdulength)
+        logger.debug("DIMSE.Send:done")
         start = time.time()
         while 1:
             time.sleep(0.001)
@@ -608,9 +610,11 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
             except:
                 status = None
             if status != 'Pending':
+                logger.debug("breaking for status")
                 break
             if kill_time is not None:
                 if time.time() - start > kill_time:
+                    logger.debug("breaking for time")
                     break
             yield status, d
         yield status, d
