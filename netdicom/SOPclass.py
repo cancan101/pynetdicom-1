@@ -601,7 +601,14 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
             # wait for c-find responses
             ans, id = self.DIMSE.Receive(Wait=False)
             if not ans:
-                continue
+                if kill_time is not None and time.time() - start > kill_time:
+                    logger.debug("breaking for time")
+                    break
+                else:
+                    continue
+            else:
+                start = time.time()
+
             d = dsutils.decode(
                 ans.Identifier, self.transfersyntax.is_implicit_VR,
                 self.transfersyntax.is_little_endian)
@@ -612,10 +619,6 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
             if status != 'Pending':
                 logger.debug("breaking for status")
                 break
-            if kill_time is not None:
-                if time.time() - start > kill_time:
-                    logger.debug("breaking for time")
-                    break
             yield status, d
         yield status, d
 
