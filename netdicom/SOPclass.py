@@ -606,7 +606,7 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
                     if self.DIMSE.DUL is not None:
                         logger.debug("idle_timer_expired: %s", self.DIMSE.DUL.idle_timer_expired())
                         logger.debug("kill: %s", self.DIMSE.DUL.kill)
-                    break
+                    return
                 else:
                     continue
             else:
