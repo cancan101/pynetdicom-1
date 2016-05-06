@@ -62,7 +62,7 @@ class VerificationServiceClass(ServiceClass):
 
         self.DIMSE.Send(cecho, self.pcid, self.maxpdulength)
 
-        ans, id = self.DIMSE.Receive(Wait=True, Timeout=kill_time)
+        ans, id = self.DIMSE.Receive(Wait=kill_time is None, Timeout=kill_time)
         return self.Code2Status(ans.Status)
 
     def SCP(self, msg):
