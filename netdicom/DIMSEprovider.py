@@ -66,18 +66,29 @@ class DIMSEServiceProvider(object):
         if Wait:
             # loop until complete DIMSE message is received
             logger.debug('Entering loop for receiving DIMSE message')
+            start = time.time()
             while 1:
                 time.sleep(0.001)
                 nxt = self.DUL.Peek()
+
                 if nxt is None:
-                    continue
+                    if Timeout is not None and time.time() - start > Timeout:
+                        return None, None
+                    else:
+                        continue
+                else:
+                    start = time.time()
+
                 if nxt.__class__ is not P_DATA_ServiceParameters:
+                    logger.debug('Waiting for P-DATA but received %s', nxt.__class__)
                     return None, None
+
                 if self.message.Decode(self.DUL.Receive(Wait, Timeout)):
                     tmp = self.message
                     self.message = None
                     logger.debug('Decoded DIMSE message: %s', str(tmp))
                     return tmp.ToParams(), tmp.ID
+
         else:
             cls = self.DUL.Peek().__class__
             if cls not in (type(None), P_DATA_ServiceParameters):

@@ -55,14 +55,19 @@ class VerificationServiceClass(ServiceClass):
     def __init__(self):
         ServiceClass.__init__(self)
 
-    def SCU(self, id):
+    def SCU(self, id, kill_time=None):
         cecho = C_ECHO_ServiceParameters()
         cecho.MessageID = id
         cecho.AffectedSOPClassUID = self.UID
 
         self.DIMSE.Send(cecho, self.pcid, self.maxpdulength)
 
-        ans, id = self.DIMSE.Receive(Wait=True)
+        ans, id = self.DIMSE.Receive(Wait=True, Timeout=kill_time)
+        if ans is None:
+            msg = "Timed out waiting for DIMSE.Receive"
+            logger.error(msg)
+            raise Exception(msg)
+
         return self.Code2Status(ans.Status)
 
     def SCP(self, msg):
@@ -581,7 +586,7 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
         xrange(0xFF01, 0xFF01 + 1)
     )
 
-    def SCU(self, ds, msgid):
+    def SCU(self, ds, msgid, kill_time=None):
         # build C-FIND primitive
         cfind = C_FIND_ServiceParameters()
         cfind.MessageID = msgid
@@ -593,12 +598,21 @@ class ModalityWorklistServiceSOPClass (BasicWorklistServiceClass):
 
         # send c-find request
         self.DIMSE.Send(cfind, self.pcid, self.maxpdulength)
+        start = time.time()
         while 1:
             time.sleep(0.001)
             # wait for c-find responses
             ans, id = self.DIMSE.Receive(Wait=False)
             if not ans:
-                continue
+                if kill_time is not None and time.time() - start > kill_time:
+                    msg = "Timed out waiting for DIMSE.Receive"
+                    logger.error(msg)
+                    raise Exception(msg)
+                else:
+                    continue
+            else:
+                start = time.time()
+
             d = dsutils.decode(
                 ans.Identifier, self.transfersyntax.is_implicit_VR,
                 self.transfersyntax.is_little_endian)

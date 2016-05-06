@@ -107,7 +107,7 @@ class Association(threading.Thread):
         #del self.ACSE
 
     def Release(self, reason):
-        self.ACSE.Release(reason)
+        self.ACSE.Release(reason, Timeout=self.AssociateRequestTimeout)
         self.Kill()
 
     def Abort(self, reason):
